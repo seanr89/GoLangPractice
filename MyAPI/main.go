@@ -14,6 +14,9 @@ import (
 	"github.com/gorilla/mux"
 )
 
+///////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////
+
 type Person struct {
 	ID        string   `json:"id,omitempty"`
 	Firstname string   `json:"firstname,omitempty"`
@@ -26,6 +29,47 @@ type Address struct {
 }
 
 var people []Person
+
+///////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////
+
+/**
+Request and return all people(JSON)
+*/
+func GetPeople(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, "not implemented yet !")
+	json.NewEncoder(w).Encode(people)
+}
+
+/**
+ */
+func GetPerson(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, "not implemented yet !")
+	//access params passed to API
+	params := mux.Vars(r)
+	for _, item := range people {
+		if item.ID == params["id"] {
+			json.NewEncoder(w).Encode(item)
+			return
+		}
+	}
+	json.NewEncoder(w).Encode(&Person{})
+}
+
+/**
+ */
+func CreatePerson(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, "not implemented yet !")
+}
+
+/**
+ */
+func DeletePerson(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, "not implemented yet !")
+}
+
+///////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////
 
 //Our main function
 func main() {
@@ -45,32 +89,4 @@ func main() {
 	if err := http.ListenAndServe(":8000", router); err != nil {
 		log.Fatal(err)
 	}
-}
-
-/**
-Request and return all people(JSON)
-*/
-func GetPeople(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "not implemented yet !")
-	json.NewEncoder(w).Encode(people)
-}
-
-/**
- */
-func GetPerson(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "not implemented yet !")
-	//access params passed to API
-	//params := mux.Vars(r)
-}
-
-/**
- */
-func CreatePerson(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "not implemented yet !")
-}
-
-/**
- */
-func DeletePerson(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "not implemented yet !")
 }
