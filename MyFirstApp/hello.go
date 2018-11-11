@@ -2,7 +2,7 @@
 * Created using VSCode
 * User : Sean
 * Basic main class to test hello world tools
-*/
+ */
 package main
 
 import "fmt"
@@ -17,7 +17,7 @@ func main() {
 	fmt.Println(message, a, b, c)
 
 	//now lets create a for loop
-	for i:=0; i < 5; i++{
+	for i := 0; i < 5; i++ {
 		fmt.Println("i is currently : ", i)
 	}
 
@@ -28,12 +28,12 @@ func main() {
 	doDBOperations()
 }
 
-func connectToDB () {
-    fmt.Println( "ok, connected to db" )
+func connectToDB() {
+	fmt.Println("ok, connected to db")
 }
 
-func disconnectFromDB () {
-    fmt.Println( "ok, disconnected from db" )
+func disconnectFromDB() {
+	fmt.Println("ok, disconnected from db")
 }
 
 /*
