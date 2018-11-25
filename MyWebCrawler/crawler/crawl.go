@@ -15,6 +15,9 @@ type ScrapeResult struct {
 	H1    string
 }
 
+/**
+Parser interfaces and initialises call for  goQuery to read the provided document
+*/
 type Parser interface {
 	ParsePage(*goquery.Document) ScrapeResult
 }
@@ -85,8 +88,14 @@ func parseStartURL(u string) string {
 	return fmt.Sprintf("%s://%s", parsed.Scheme, parsed.Host)
 }
 
+func readAddPrintAllUrls(data []string) {
+	for i, _ := range data {
+		fmt.Println("Link at i is : ", data[i])
+	}
+}
+
 /*
-Executes the crawling of a website with number of concurrent process assigned
+Crawl executes the crawling of a website with number of concurrent process assigned
 */
 func Crawl(startURL string, parser Parser, concurrency int) []ScrapeResult {
 	results := []ScrapeResult{}
@@ -107,13 +116,15 @@ func Crawl(startURL string, parser Parser, concurrency int) []ScrapeResult {
 				go func(baseDomain, link string, parser Parser, token chan struct{}) {
 					foundLinks, pageResults := crawlPage(baseDomain, link, parser, token)
 					fmt.Println("found a total of ", len(foundLinks), " links for url: ", link)
+					readAddPrintAllUrls(foundLinks)
 					results = append(results, pageResults)
 					if foundLinks != nil {
-						if len(foundLinks) > 4 {
-							worklist <- foundLinks[0:4]
-						} else {
-							worklist <- foundLinks
-						}
+						// if len(foundLinks) > 4 {
+						// 	worklist <- foundLinks[0:4]
+						// } else {
+						// 	worklist <- foundLinks
+						// }
+						worklist <- foundLinks
 					}
 				}(baseDomain, link, parser, tokens)
 			}
