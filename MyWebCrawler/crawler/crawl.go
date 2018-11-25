@@ -106,6 +106,7 @@ func Crawl(startURL string, parser Parser, concurrency int) []ScrapeResult {
 				n++
 				go func(baseDomain, link string, parser Parser, token chan struct{}) {
 					foundLinks, pageResults := crawlPage(baseDomain, link, parser, token)
+					fmt.Println("found a total of ", len(foundLinks), " links for url: ", link)
 					results = append(results, pageResults)
 					if foundLinks != nil {
 						worklist <- foundLinks
