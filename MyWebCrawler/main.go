@@ -5,6 +5,8 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
+/**
+ */
 type DummyParser struct {
 }
 
@@ -17,5 +19,5 @@ func (d DummyParser) ParsePage(doc *goquery.Document) crawler.ScrapeResult {
 
 func main() {
 	d := DummyParser{}
-	crawler.Crawl("https://www.theguardian.com/uk", d, 10)
+	crawler.Crawl("https://www.randoxhealth.com/", d, 4)
 }

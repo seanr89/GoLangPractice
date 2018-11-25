@@ -59,10 +59,12 @@ func resolveRelative(baseURL string, hrefs []string) []string {
 			internalUrls = append(internalUrls, resolvedURL)
 		}
 	}
-
 	return internalUrls
 }
 
+/*
+Executing the processing of inidividual page contents
+*/
 func crawlPage(baseURL, targetURL string, parser Parser, token chan struct{}) ([]string, ScrapeResult) {
 
 	token <- struct{}{}
@@ -83,6 +85,9 @@ func parseStartURL(u string) string {
 	return fmt.Sprintf("%s://%s", parsed.Scheme, parsed.Host)
 }
 
+/*
+Executes the crawling of a website with number of concurrent process assigned
+*/
 func Crawl(startURL string, parser Parser, concurrency int) []ScrapeResult {
 	results := []ScrapeResult{}
 	worklist := make(chan []string)
