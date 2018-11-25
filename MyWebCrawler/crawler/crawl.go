@@ -109,7 +109,11 @@ func Crawl(startURL string, parser Parser, concurrency int) []ScrapeResult {
 					fmt.Println("found a total of ", len(foundLinks), " links for url: ", link)
 					results = append(results, pageResults)
 					if foundLinks != nil {
-						worklist <- foundLinks
+						if len(foundLinks) > 4 {
+							worklist <- foundLinks[0:4]
+						} else {
+							worklist <- foundLinks
+						}
 					}
 				}(baseDomain, link, parser, tokens)
 			}
