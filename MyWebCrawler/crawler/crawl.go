@@ -88,8 +88,11 @@ func parseStartURL(u string) string {
 	return fmt.Sprintf("%s://%s", parsed.Scheme, parsed.Host)
 }
 
+/**
+readAndPrintAllUrls task is to read in each url and output the string content
+*/
 func readAddPrintAllUrls(data []string) {
-	for i, _ := range data {
+	for i := range data {
 		fmt.Println("Link at i is : ", data[i])
 	}
 }
@@ -103,6 +106,7 @@ func Crawl(startURL string, parser Parser, concurrency int) []ScrapeResult {
 	var n int
 	n++
 	var tokens = make(chan struct{}, concurrency)
+	//go param denotes execute this process asynchronously
 	go func() { worklist <- []string{startURL} }()
 	seen := make(map[string]bool)
 	baseDomain := parseStartURL(startURL)
