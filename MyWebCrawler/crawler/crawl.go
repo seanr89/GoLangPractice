@@ -83,6 +83,9 @@ func crawlPage(baseURL, targetURL string, parser Parser, token chan struct{}) ([
 	return foundUrls, pageResults
 }
 
+/*
+parseStartURL output the scheme and the host of the site
+*/
 func parseStartURL(u string) string {
 	parsed, _ := url.Parse(u)
 	return fmt.Sprintf("%s://%s", parsed.Scheme, parsed.Host)
@@ -123,12 +126,12 @@ func Crawl(startURL string, parser Parser, concurrency int) []ScrapeResult {
 					readAddPrintAllUrls(foundLinks)
 					results = append(results, pageResults)
 					if foundLinks != nil {
-						// if len(foundLinks) > 4 {
-						// 	worklist <- foundLinks[0:4]
-						// } else {
-						// 	worklist <- foundLinks
-						// }
-						worklist <- foundLinks
+						if len(foundLinks) > 6 {
+							worklist <- foundLinks[1:4]
+						} else {
+							worklist <- foundLinks
+						}
+						//worklist <- foundLinks
 					}
 				}(baseDomain, link, parser, tokens)
 			}
