@@ -7,6 +7,8 @@ package main
 
 import "fmt"
 import "./stringUtil"
+import "./constSamp"
+import "./samples"
 
 func main() {
 
@@ -25,7 +27,13 @@ func main() {
 	fmt.Println(stringUtil.Reverse("!oG ,olleH"))
 
 	//testing the executing of method calls from the file itself as well
-	doDBOperations()
+	//doDBOperations()
+
+	constSamp.ShowConstants()
+
+	variadicSum(1, 2, 3, 4)
+
+	samples.SampleGoRoutine()
 }
 
 func connectToDB() {
@@ -49,4 +57,14 @@ func doDBOperations() {
 	return //terminate the program
 
 	// deferred function executed here just before actually returning, even if there is a return or abnormal termination before
+}
+
+// Variadic functions can be called with any number of trailing arguments.
+func variadicSum(nums ...int) {
+	fmt.Print(nums, " ")
+	total := 0
+	for _, num := range nums {
+		total += num
+	}
+	fmt.Println(total)
 }
