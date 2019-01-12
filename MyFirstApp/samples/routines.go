@@ -18,4 +18,8 @@ func SampleGoRoutine() {
 	go func(msg string) {
 		fmt.Println(msg)
 	}("going")
+
+	//await enter/return!
+	fmt.Scanln()
+	fmt.Println("done")
 }

@@ -7,21 +7,20 @@ package main
 
 import "fmt"
 import "./stringUtil"
-import "./constSamp"
+
 import "./samples"
 
 func main() {
 
 	//initialise a variable to store the output
 	var message string
-	var a, b, c int
 	message = "Hello go world!"
-	fmt.Println(message, a, b, c)
+	fmt.Println(message)
 
 	//now lets create a for loop
-	for i := 0; i < 5; i++ {
-		fmt.Println("i is currently : ", i)
-	}
+	// for i := 0; i < 5; i++ {
+	// 	fmt.Println("i is currently : ", i)
+	// }
 
 	//utilizing package import and method calling
 	fmt.Println(stringUtil.Reverse("!oG ,olleH"))
@@ -29,11 +28,16 @@ func main() {
 	//testing the executing of method calls from the file itself as well
 	//doDBOperations()
 
-	constSamp.ShowConstants()
+	//example of how constants work
+	//constSamp.ShowConstants()
 
-	variadicSum(1, 2, 3, 4)
+	//variadicSum(1, 2, 3, 4)
 
+	//Example of a go thread execution
 	samples.SampleGoRoutine()
+
+	//Execute a set of go worker threads and pass jobs to each
+	samples.RunWorkers(2, 10)
 }
 
 func connectToDB() {
