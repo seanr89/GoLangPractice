@@ -37,6 +37,10 @@ func getRequest(url string) (*http.Response, error) {
 	return res, nil
 }
 
+/*
+Extract links for the url goquery document
+return as a list of strings
+*/
 func extractLinks(doc *goquery.Document) []string {
 	foundUrls := []string{}
 	if doc != nil {
@@ -85,8 +89,10 @@ func crawlPage(baseURL, targetURL string, parser Parser, token chan struct{}) ([
 
 /*
 parseStartURL output the scheme and the host of the site
+returns a output string to console with the scheme and host
 */
 func parseStartURL(u string) string {
+	// use url package to parse the url from the string
 	parsed, _ := url.Parse(u)
 	return fmt.Sprintf("%s://%s", parsed.Scheme, parsed.Host)
 }
@@ -105,16 +111,21 @@ Crawl executes the crawling of a website with number of concurrent process assig
 */
 func Crawl(startURL string, parser Parser, concurrency int) []ScrapeResult {
 	results := []ScrapeResult{}
+	// create a channel worklist that returns a string
 	worklist := make(chan []string)
 	var n int
 	n++
+	//this is another channel - but unsure as to its usage
 	var tokens = make(chan struct{}, concurrency)
 	//go param denotes execute this process asynchronously
 	go func() { worklist <- []string{startURL} }()
+
+	// initialise a new map (key is a string and value is a bool)
 	seen := make(map[string]bool)
 	baseDomain := parseStartURL(startURL)
 
 	for ; n > 0; n-- {
+		//receive from worklist channel and assign to list
 		list := <-worklist
 		for _, link := range list {
 			if !seen[link] {
@@ -122,13 +133,15 @@ func Crawl(startURL string, parser Parser, concurrency int) []ScrapeResult {
 				n++
 				go func(baseDomain, link string, parser Parser, token chan struct{}) {
 					foundLinks, pageResults := crawlPage(baseDomain, link, parser, token)
-					fmt.Println("found a total of ", len(foundLinks), " links for url: ", link)
-					readAddPrintAllUrls(foundLinks)
+					//fmt.Println("found a total of ", len(foundLinks), " links for url: ", link)
+					//readAddPrintAllUrls(foundLinks)
 					results = append(results, pageResults)
 					if foundLinks != nil {
-						if len(foundLinks) > 6 {
-							worklist <- foundLinks[1:4]
+						if len(foundLinks) > 9 {
+							fmt.Println("> 9", len(foundLinks), " links for url: ", link)
+							worklist <- foundLinks[0:8]
 						} else {
+							fmt.Println("found a total of ", len(foundLinks), " links for url: ", link)
 							worklist <- foundLinks
 						}
 						//worklist <- foundLinks

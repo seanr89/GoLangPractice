@@ -37,7 +37,7 @@ func main() {
 	samples.SampleGoRoutine()
 
 	//Execute a set of go worker threads and pass jobs to each
-	samples.RunWorkers(2, 10)
+	samples.RunWorkers(2, 15)
 }
 
 func connectToDB() {

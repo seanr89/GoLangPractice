@@ -34,7 +34,6 @@ func RunWorkers(workerCount, jobCount int) {
 	for j := 1; j <= jobCount; j++ {
 		jobs <- j
 	}
-
 	// close that channel after jobs sent!
 	close(jobs)
 	//Finally we collect all the results of the work.
