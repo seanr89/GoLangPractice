@@ -4,15 +4,10 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"time"
+	"strings"
 
 	"github.com/PuerkitoBio/goquery"
 )
-
-func myWorker(id int) {
-	time.Sleep(time.Second)
-	fmt.Println("myWorker execution: ", id)
-}
 
 /*
 Here’s the worker, of which we’ll run several concurrent instances.
@@ -22,8 +17,9 @@ func worker(id int, baseURL <-chan string, jobs <-chan string) {
 	//fmt.Println("worker execution: ", jobs)
 	if jobs != nil {
 		for j := range jobs {
-			fmt.Println("j: ", j)
-			//crawlCurrentPage(j)
+			//fmt.Println("j: ", j)
+			res := crawlCurrentPage(<-baseURL, j)
+			outputURLS(res)
 			//results <- crawlCurrentPage(j)
 		}
 	} else {
@@ -31,16 +27,56 @@ func worker(id int, baseURL <-chan string, jobs <-chan string) {
 	}
 }
 
-func crawlCurrentPage(targetURL string) []string {
-	fmt.Println("Requesting: ", targetURL)
+func outputURLS(urls []string){
+	if urls != nil{
+		
+		for i := 0; i <= len(urls); i++{
+			fmt.Println("url = : ", urls[i])
+		}
+	}
+}
+
+/*
+Extract links for the url goquery document
+return as a list of strings
+*/
+func extractLinks(doc *goquery.Document) []string {
+	foundUrls := []string{}
+	if doc != nil {
+		doc.Find("a").Each(func(i int, s *goquery.Selection) {
+			res, _ := s.Attr("href")
+			foundUrls = append(foundUrls, res)
+		})
+		return foundUrls
+	}
+	return foundUrls
+}
+
+func resolveRelative(baseURL string, hrefs []string) []string {
+	internalUrls := []string{}
+
+	for _, href := range hrefs {
+		if strings.HasPrefix(href, baseURL) {
+			internalUrls = append(internalUrls, href)
+		}
+
+		if strings.HasPrefix(href, "/") {
+			resolvedURL := fmt.Sprintf("%s%s", baseURL, href)
+			internalUrls = append(internalUrls, resolvedURL)
+		}
+	}
+	return internalUrls
+}
+
+func crawlCurrentPage(baseURL, targetURL string) []string {
+	fmt.Println("crawlCurrentPage: ", targetURL)
 	resp, _ := getURLRequest(targetURL)
 
 	doc, _ := goquery.NewDocumentFromResponse(resp)
 	//pageResults := parser.ParsePage(doc)
-	//links :=
-	extractURLLinks(doc)
-	foundUrls := make([]string, 0)
-	//foundUrls := resolveRelative(baseURL, links)
+	links := extractLinks(doc)
+	//foundUrls := make([]string, 0)
+	foundUrls := resolveRelative(baseURL, links)
 
 	return foundUrls
 }
@@ -95,8 +131,6 @@ func StartCrawl(baseURL string, workerCount int) {
 
 	// create a channel worklist that returns a string
 	//the worklist will be an array or urls (appended to during crawling)
-
-	/////
 	workList := make(chan string, 100)
 	baseURLChan := make(chan string, 200)
 
@@ -108,8 +142,6 @@ func StartCrawl(baseURL string, workerCount int) {
 	}
 
 	baseURLChan <- baseURL
-	baseURLChan <- "2"
-	baseURLChan <- "3"
 	var parsedStartingURL = parseStartingURL(baseURL)
 	fmt.Println("StartCrawl with url: ", parsedStartingURL)
 	workList <- parsedStartingURL
