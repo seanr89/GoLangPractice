@@ -12,7 +12,7 @@ import (
 Here’s the worker, of which we’ll run several concurrent instances.
 These workers will receive work on the jobs channel and send the corresponding results on results.
 */
-func worker(id int, jobs <-chan string, results chan<- []string) {
+func worker(id int, baseURL <-chan string, jobs <-chan string, results chan<- []string) {
 	fmt.Println("worker execution")
 	if jobs != nil {
 		for j := range jobs {
@@ -27,7 +27,7 @@ func crawlCurrentPage(targetURL string) []string {
 
 	doc, _ := goquery.NewDocumentFromResponse(resp)
 	//pageResults := parser.ParsePage(doc)
-	links := extractLinks(doc)
+	links := extractURLLinks(doc)
 	foundUrls := make([]string, 0)
 	//foundUrls := resolveRelative(baseURL, links)
 
@@ -60,6 +60,22 @@ func getURLRequest(url string) (*http.Response, error) {
 	return res, nil
 }
 
+/*
+Extract links for the url goquery document
+return as a list of strings
+*/
+func extractURLLinks(doc *goquery.Document) []string {
+	foundUrls := []string{}
+	if doc != nil {
+		doc.Find("a").Each(func(i int, s *goquery.Selection) {
+			res, _ := s.Attr("href")
+			foundUrls = append(foundUrls, res)
+		})
+		return foundUrls
+	}
+	return foundUrls
+}
+
 func StartCrawl(baseURL string, workerCount int) {
 	//initialise array of scraperesult objects taken from the controller
 	results := []ScrapeResult{}
@@ -67,6 +83,8 @@ func StartCrawl(baseURL string, workerCount int) {
 	// create a channel worklist that returns a string
 	//the worklist will be an array or urls (appended to during crawling)
 	workList := make(chan string)
+	baseURLChan := make(chan string)
+	baseURLChan <- baseURL
 	resultChan := make(chan []string)
 
 	var parsedStartingURL = parseStartingURL(baseURL)
@@ -74,7 +92,7 @@ func StartCrawl(baseURL string, workerCount int) {
 
 	// loop through and and create workers - initially stopped as no jobs present
 	for w := 1; w <= workerCount; w++ {
-		go worker(w, workList, resultChan)
+		go worker(w, baseURLChan, workList, resultChan)
 	}
 
 	//time to now handle any response from each worker iteration
