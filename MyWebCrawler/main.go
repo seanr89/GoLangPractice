@@ -18,7 +18,7 @@ func (d DummyParser) ParsePage(doc *goquery.Document) crawler.ScrapeResult {
 }
 
 func main() {
-	d := DummyParser{}
+	//d := DummyParser{}
 	//crawler.Crawl("https://bbc.co.uk/", d, 3)
 	//crawler.Crawl("https://vsorelease.azurewebsites.net/", d, 4)
 
