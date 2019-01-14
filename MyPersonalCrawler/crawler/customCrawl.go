@@ -30,8 +30,8 @@ func worker(id int, baseURL <-chan string, jobs <-chan string) {
 func outputURLS(urls []string){
 	if urls != nil{
 		
-		for i := 0; i <= len(urls); i++{
-			fmt.Println("url = : ", urls[i])
+		for _, href := range urls{
+			fmt.Println("url = : ", href)
 		}
 	}
 }
