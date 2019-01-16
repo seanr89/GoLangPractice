@@ -42,6 +42,7 @@ Extract links for the url goquery document
 return as a list of strings
 */
 func extractLinks(doc *goquery.Document) []string {
+	fmt.Println("extractLinks: ", doc)
 	foundUrls := []string{}
 	if doc != nil {
 		doc.Find("a").Each(func(i int, s *goquery.Selection) {
