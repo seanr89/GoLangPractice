@@ -14,7 +14,7 @@ func worker(id int, jobs <-chan int, results chan<- int) {
 	for j := range jobs {
 		fmt.Println("worker", id, "started  job", j)
 		time.Sleep(time.Second)
-		fmt.Println("worker", id, "finished job", j)
+		//fmt.Println("worker", id, "finished job", j)
 		results <- j * 2
 	}
 }
@@ -35,9 +35,11 @@ func RunWorkers(workerCount, jobCount int) {
 		jobs <- j
 	}
 	// close that channel after jobs sent!
-	close(jobs)
+	//close(jobs)
 	//Finally we collect all the results of the work.
 	for a := 1; a <= jobCount; a++ {
-		<-results
+		fmt.Println("finished job: ", <-results)
+		jobs <- a
 	}
+	close(jobs)
 }
