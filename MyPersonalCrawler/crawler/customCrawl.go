@@ -139,7 +139,7 @@ func StartCrawl(baseURL string, workerCount int) {
 	// create a channel worklist that expects a string
 	//the worklist will be an array or urls (appended to during crawling)
 	workList := make(chan string)
-	//baseURLChan := make(chan string, 200)
+	searchedURLS := make(map[string]string, 3)
 
 	// loop through and and create workers - initially stopped as no jobs(worklist) present
 	for w := 1; w <= workerCount; w++ {
@@ -150,11 +150,22 @@ func StartCrawl(baseURL string, workerCount int) {
 	var parsedStartingURL = parseStartingURL(baseURL)
 	workList <- parsedStartingURL
 	
-	for a := 1; a <= 1000; a++ {
-		time.Sleep(1 * time.Second)
+	//searchedURLS = append(searchedURLS, parsedStartingURL)
+	searchedURLS[parsedStartingURL] = parsedStartingURL
+	for a := 1; a <= len(searchedURLS)+100; a++ {
+		time.Sleep(1000)
 		res := <- resultURL
 		//fmt.Println("for res:", res)
-		workList <- res
+
+		if _, ok := searchedURLS[res]; !ok {
+			//searchedURLS = append(searchedURLS, res)
+			fmt.Println("added res:", res)
+			searchedURLS[res] = res
+			workList <- res
+		}else{
+			fmt.Println("url $s already mapped:", res)
+		}
+		
 	}
 	fmt.Println("complete:")
 
