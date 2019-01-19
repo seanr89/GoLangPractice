@@ -20,7 +20,6 @@ func worker(id int, baseURL string, jobs <-chan string, result chan<- string) {
 			res := crawlCurrentPage(baseURL, j, id)
 			if res != nil{
 				//result <- res
-				//return result
 				for _, v := range res{
 					//fmt.Println("result item", v)
 					result <- v
@@ -32,25 +31,31 @@ func worker(id int, baseURL string, jobs <-chan string, result chan<- string) {
 	}
 }
 
-func outputURLS(urls []string) {
-	if urls != nil {
-		fmt.Println("length of urls =", len(urls))
-		for _, href := range urls {
-			fmt.Println("url = : ", href)
-		}
-	}
-}
+// func outputURLS(urls []string) {
+// 	if urls != nil {
+// 		fmt.Println("length of urls =", len(urls))
+// 		for _, href := range urls {
+// 			fmt.Println("url = : ", href)
+// 		}
+// 	}
+// }
 
 /*
  */
 func resolveRelative(baseURL string, hrefs []string) []string {
-	//fmt.Println("resolveRelative: ", hrefs, "with base: ", baseURL)
+	fmt.Println("resolveRelative: with base: ", baseURL)
 	internalUrls := []string{}
 
 	for _, href := range hrefs {
-		//fmt.Println("parsing href: ", href)
-		if strings.HasPrefix(href, baseURL) {
+		fmt.Println("parsing href: ", href)
+		if strings.HasPrefix(baseURL, href) {
+			fmt.Println("href: ", href)
 			internalUrls = append(internalUrls, href)
+		}else{
+			fmt.Println("href: ", href)
+			resolvedURL := fmt.Sprintf("%s%s", baseURL, href)
+			fmt.Println("resolvedURL href: ", resolvedURL)
+			internalUrls = append(internalUrls, resolvedURL)
 		}
 
 		///First iteration
@@ -60,13 +65,12 @@ func resolveRelative(baseURL string, hrefs []string) []string {
 			// internalUrls = append(internalUrls, resolvedURL)
 		//}
 
-
 		/// another methodbeing testing
-		if strings.HasPrefix(href, "/") {
-			resolvedURL := fmt.Sprintf("%s%s", baseURL, href)
-			//fmt.Println("resolvedURL href: ", resolvedURL)
-			internalUrls = append(internalUrls, resolvedURL)
-		}
+		//if strings.HasPrefix(href, "/") {
+			// resolvedURL := fmt.Sprintf("%s", href)
+			// fmt.Println("resolvedURL href: ", resolvedURL)
+			// internalUrls = append(internalUrls, resolvedURL)
+		//}
 	}
 	return internalUrls
 }
@@ -74,7 +78,7 @@ func resolveRelative(baseURL string, hrefs []string) []string {
 /*
  */
 func crawlCurrentPage(baseURL, targetURL string, id int) []string {
-	fmt.Println("crawlCurrentPage: ", targetURL, "worker id: ", id)
+	//fmt.Println("crawlCurrentPage: ", targetURL, "worker id: ", id)
 	resp, _ := getURLRequest(targetURL)
 
 	doc, _ := goquery.NewDocumentFromResponse(resp)
@@ -92,7 +96,7 @@ parseStartURL output the scheme and the host of the site
 returns an output string to console with the scheme and host
 */
 func parseStartingURL(u string) string {
-	fmt.Println("parseStartingURL")
+	//fmt.Println("parseStartingURL")
 	// use url package to parse the url from the string
 	parsed, _ := url.Parse(u)
 	return fmt.Sprintf("%s://%s", parsed.Scheme, parsed.Host)
@@ -135,7 +139,6 @@ func StartCrawl(baseURL string, workerCount int) {
 	fmt.Println("StartCrawl: ", baseURL, workerCount)
 
 	resultURL := make(chan string, 10000)
-
 	// create a channel worklist that expects a string
 	//the worklist will be an array or urls (appended to during crawling)
 	workList := make(chan string)
@@ -143,7 +146,6 @@ func StartCrawl(baseURL string, workerCount int) {
 
 	// loop through and and create workers - initially stopped as no jobs(worklist) present
 	for w := 1; w <= workerCount; w++ {
-		//fmt.Println("for worker")
 		go worker(w, baseURL, workList, resultURL)
 	}
 
@@ -152,22 +154,22 @@ func StartCrawl(baseURL string, workerCount int) {
 	
 	//searchedURLS = append(searchedURLS, parsedStartingURL)
 	searchedURLS[parsedStartingURL] = parsedStartingURL
+	//included a +100 on ensure that the loop would still work
 	for a := 1; a <= len(searchedURLS)+100; a++ {
 		time.Sleep(1000)
 		res := <- resultURL
-		//fmt.Println("for res:", res)
 
 		if _, ok := searchedURLS[res]; !ok {
-			//searchedURLS = append(searchedURLS, res)
-			fmt.Println("added res:", res)
+			//fmt.Println("added res:", res)
 			searchedURLS[res] = res
 			workList <- res
-		}else{
-			fmt.Println("url $s already mapped:", res)
 		}
+		// else{
+		// 	fmt.Println("url $s already mapped:", res)
+		// }
 		
 	}
-	fmt.Println("complete:")
+	fmt.Println("complete: scanned a total of $s sites", len(searchedURLS))
 
 	//time to now handle any response from each worker iteration
 	fmt.Scanln()
