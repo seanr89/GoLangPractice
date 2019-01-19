@@ -14,7 +14,6 @@ Here’s the worker, of which we’ll run several concurrent instances.
 These workers will receive work on the jobs channel and send the corresponding results on results.
 */
 func worker(id int, baseURL string, jobs <-chan string, result chan<- string) {
-	fmt.Println("worker execution: ", id)
 	if jobs != nil {
 		for j := range jobs {
 			res := crawlCurrentPage(baseURL, j, id)
@@ -43,18 +42,20 @@ func worker(id int, baseURL string, jobs <-chan string, result chan<- string) {
 /*
  */
 func resolveRelative(baseURL string, hrefs []string) []string {
-	fmt.Println("resolveRelative: with base: ", baseURL)
+	//fmt.Println("resolveRelative: with base: ", baseURL)
 	internalUrls := []string{}
 
 	for _, href := range hrefs {
-		fmt.Println("parsing href: ", href)
+		// fmt.Println("parsing href: ", href)
 		if strings.HasPrefix(baseURL, href) {
-			fmt.Println("href: ", href)
+			//fmt.Println("href: ", href)
 			internalUrls = append(internalUrls, href)
-		}else{
-			fmt.Println("href: ", href)
+		}else if strings.Contains(href, "http"){
+			internalUrls = append(internalUrls, href)
+		}else if strings.HasPrefix(href, "/"){
+			//mt.Println("href: ", href)
 			resolvedURL := fmt.Sprintf("%s%s", baseURL, href)
-			fmt.Println("resolvedURL href: ", resolvedURL)
+			//fmt.Println("resolvedURL href: ", resolvedURL)
 			internalUrls = append(internalUrls, resolvedURL)
 		}
 
@@ -78,7 +79,7 @@ func resolveRelative(baseURL string, hrefs []string) []string {
 /*
  */
 func crawlCurrentPage(baseURL, targetURL string, id int) []string {
-	//fmt.Println("crawlCurrentPage: ", targetURL, "worker id: ", id)
+	fmt.Println("crawlCurrentPage: ", targetURL, "worker id: ", id)
 	resp, _ := getURLRequest(targetURL)
 
 	doc, _ := goquery.NewDocumentFromResponse(resp)
@@ -136,9 +137,9 @@ func extractURLLinks(doc *goquery.Document) []string {
 }
 
 func StartCrawl(baseURL string, workerCount int) {
-	fmt.Println("StartCrawl: ", baseURL, workerCount)
+	//fmt.Println("StartCrawl: ", baseURL, workerCount)
 
-	resultURL := make(chan string, 10000)
+	resultURL := make(chan string, 50000)
 	// create a channel worklist that expects a string
 	//the worklist will be an array or urls (appended to during crawling)
 	workList := make(chan string)
@@ -156,6 +157,7 @@ func StartCrawl(baseURL string, workerCount int) {
 	searchedURLS[parsedStartingURL] = parsedStartingURL
 	//included a +100 on ensure that the loop would still work
 	for a := 1; a <= len(searchedURLS)+100; a++ {
+		fmt.Println("executing loop!")
 		time.Sleep(1000)
 		res := <- resultURL
 
